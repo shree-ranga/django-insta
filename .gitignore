@@ -1,0 +1,6 @@
+.DS_Store
+settings.json
+__pycache__
+migrations
+media
+db.sqlite3
