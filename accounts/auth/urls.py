@@ -8,6 +8,6 @@ urlpatterns = [
     path("login/", LoginView.as_view(), name="login"),
     path("logout/", LogoutView.as_view(), name="logout"),
     path("register/", RegisterView.as_view(), name="register"),
-    # path("auth/register/upload/", UploadProfileImageView.as_view(), name="upload_profile_image"),
     path("register/api-auth-token/", obtain_auth_token, name="api_auth_token"),
+    path("dummy-auth/", DummyAuthAPIView.as_view(), name="dummy_auth"),
 ]

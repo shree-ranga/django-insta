@@ -1,5 +1,7 @@
 from django.contrib.auth import get_user_model, authenticate
 
+# from django.conf import settings
+
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
@@ -7,19 +9,23 @@ User = get_user_model()
 
 
 class RegisterSerializer(serializers.ModelSerializer):
+    # username = serializers.CharField()
     # full_name = serializers.CharField()
+    # email = serializers.EmailField()
+    # password = serializers.CharField()
+    # profile_image_url = serializers.ImageField()
 
+    # def validate(self, data):
+    #     return data
     class Meta:
         model = User
         fields = (
-            "id",
             "username",
+            "email",
             "first_name",
             "last_name",
-            # "full_name",
-            "email",
-            "profile_image_url",
             "password",
+            "profile_image_url",
         )
 
     def validate(self, data):

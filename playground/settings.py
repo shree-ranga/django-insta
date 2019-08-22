@@ -13,7 +13,9 @@ SECRET_KEY = "thsqj%fb+!5duj(4cc^#)@o+ilv5#nk9^q-sful^1-a%cj^o@o"
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["localhost", "127.0.0.1", "192.168.0.18"]
+ALLOWED_HOSTS = ["localhost", "127.0.0.1", "192.168.0.18", "192.168.0.12"]
+
+INTERNAL_IPS = ["127.0.0.1"]
 
 # Custom User Model
 AUTH_USER_MODEL = "accounts.User"
@@ -28,11 +30,14 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    # local
     "accounts",
     "posts",
     "comments",
+    # third party
     "rest_framework",
     "rest_framework.authtoken",
+    "debug_toolbar",
 ]
 
 MIDDLEWARE = [
@@ -43,6 +48,7 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "debug_toolbar.middleware.DebugToolbarMiddleware",
 ]
 
 ROOT_URLCONF = "playground.urls"

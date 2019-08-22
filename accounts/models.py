@@ -5,10 +5,11 @@ AbstractUser._meta.get_field("email")._unique = True
 
 
 class User(AbstractUser):
-    profile_image_url = models.ImageField(default="default.png")
+    profile_image_url = models.ImageField(default="default.jpg")
     followers = models.ManyToManyField(
         "self", symmetrical=False, related_name="following"
     )
+    bio = models.TextField(max_length=150, blank=True)
 
     # TODO - Add validation. A user cannot follow himself
 
