@@ -10,24 +10,11 @@ User = get_user_model()
 
 
 class UserListSerializer(serializers.ModelSerializer):
-    # need id field to update following in UserDetailSerializer
+    # need id field to update following field in UserDetailSerializer?
     id = serializers.IntegerField(required=False)
-    full_name = serializers.SerializerMethodField()
-
-    class Meta:
-        model = User
-        fields = ("id", "username", "full_name", "profile_image_url", "bio")
-
-    def get_full_name(self, obj):
-        return str(obj.first_name + " " + obj.last_name)
-
-
-class UserDetailSerializer(serializers.ModelSerializer):
     full_name = serializers.SerializerMethodField()
     total_followers = serializers.SerializerMethodField()
     total_following = serializers.SerializerMethodField()
-    followers = UserListSerializer(many=True)
-    following = UserListSerializer(many=True)
 
     class Meta:
         model = User
@@ -37,8 +24,6 @@ class UserDetailSerializer(serializers.ModelSerializer):
             "full_name",
             "profile_image_url",
             "bio",
-            "followers",
-            "following",
             "total_followers",
             "total_following",
         )
@@ -52,14 +37,68 @@ class UserDetailSerializer(serializers.ModelSerializer):
     def get_total_following(self, obj):
         return obj.following.count()
 
+
+class UserDetailSerializer(serializers.ModelSerializer):
+    full_name = serializers.SerializerMethodField()
+    total_followers = serializers.SerializerMethodField()
+    total_following = serializers.SerializerMethodField()
+
+    class Meta:
+        model = User
+        fields = (
+            "id",
+            "username",
+            "full_name",
+            "profile_image_url",
+            "bio",
+            "following",
+            "total_followers",
+            "total_following",
+        )
+        extra_kwargs = {"following": {"write_only": True}}
+
+    def get_total_followers(self, obj):
+        return obj.followers.count()
+
+    def get_total_following(self, obj):
+        return obj.following.count()
+
+    def get_full_name(self, obj):
+        return str(obj.first_name + " " + obj.last_name)
+
+    # TODO: - Add Validation and unfollow feature
     def update(self, instance, validated_data):
-        following_user = validated_data.pop("following")
-        user = following_user[0]
-        if "id" in user.keys():
-            instance_following_user = User.objects.get(id=user["id"])
-            instance.following.add(instance_following_user)
-            instance.save()
+        follow_user = validated_data.pop("following")
+        for user in follow_user:
+            if instance.id != user.id:
+                instance.following.add(user)
+                instance.save()
+            else:
+                raise ValidationError("User object cannot follow itself")
+
         return instance
+
+
+class UserFollowSerializer(serializers.ModelSerializer):
+    # followers = UserListSerializer(many=True)
+    # following = UserListSerializer(many=True)
+
+    class Meta:
+        model = User
+        fields = ("followers", "following")
+
+    # TODO: - Add Validation and unfollow feature
+    # def update(self, instance, validated_data):
+    #     follow_user = validated_data.pop("following")
+
+    #     for user in follow_user:
+    #         if instance.id != user.id:
+    #             instance.following.add(user)
+    #             instance.save()
+    #         else:
+    #             raise ValidationError("User object cannot follow itself")
+
+    #     return instance
 
 
 class TestImageUploadSerializer(serializers.ModelSerializer):

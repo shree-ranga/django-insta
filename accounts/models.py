@@ -1,11 +1,13 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 
+import uuid
+
 AbstractUser._meta.get_field("email")._unique = True
 
 
 class User(AbstractUser):
-    profile_image_url = models.ImageField(default="default.jpg")
+    profile_image_url = models.ImageField()
     followers = models.ManyToManyField(
         "self", symmetrical=False, related_name="following"
     )

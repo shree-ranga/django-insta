@@ -7,5 +7,14 @@ from .views import *
 urlpatterns = [
     path("users/", UserListAPIView.as_view(), name="user_list"),
     path("users/me/", UserDetailAPIView.as_view(), name="user_detail"),
-    path("dummy/", DummyAPIView.as_view(), name="dummy"),  # dummy path
+    path(
+        "users/<int:pk>/following/",
+        UserFollowingAPIView.as_view(),
+        name="user_following_list",
+    ),
+    path(
+        "users/<int:pk>/followers/",
+        UserFollowersAPIView.as_view(),
+        name="user_followers_list",
+    ),
 ]

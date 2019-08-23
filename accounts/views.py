@@ -7,7 +7,7 @@ from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from rest_framework import status
 from rest_framework.exceptions import ValidationError
 
-from .serializers import UserListSerializer, UserDetailSerializer
+from .serializers import UserListSerializer, UserDetailSerializer, UserFollowSerializer
 
 User = get_user_model()
 
@@ -23,27 +23,71 @@ class UserDetailAPIView(APIView):
     authentication_classes = (TokenAuthentication,)
     permission_classes = (IsAuthenticatedOrReadOnly,)
 
-    # def get_object(self, request, pk=None):
-    #     try:
-    #         user = User.objects.get(pk=pk)
-    #     except User.DoesNotExist:
-    #         raise ValidationError("Object does not exist")
-
     def get(self, request):
         serializer = UserDetailSerializer(request.user)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def patch(self, request):
+        print("PATCH", request.data)
         serializer = UserDetailSerializer(request.user, data=request.data, partial=True)
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 
-class DummyAPIView(APIView):
-    def get(self, request):
-        data = {"message": "dummy api view"}
-        return Response(data, status=status.HTTP_200_OK)
+class UserFollowingAPIView(APIView):
+    authentication_classes = (TokenAuthentication,)
+    permission_classes = (IsAuthenticatedOrReadOnly,)
+
+    def get_object(self, pk):
+        try:
+            user = User.objects.get(pk=pk)
+            return user
+        except:
+            raise ValidationError("User does not exit")
+
+    def get_queryset(self, pk):
+        user = self.get_object(pk=pk)
+        following_users = user.following.all()
+        return following_users
+
+    def get(self, request, pk=None):
+        queryset = self.get_queryset(pk)
+        serializer = UserListSerializer(queryset, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class UserFollowersAPIView(APIView):
+    authentication_classes = (TokenAuthentication,)
+    permission_classes = (IsAuthenticatedOrReadOnly,)
+
+    def get_object(self, pk):
+        try:
+            user = User.objects.get(pk=pk)
+            return user
+        except:
+            raise ValidationError("User does not exit")
+
+    def get_queryset(self, pk):
+        user = self.get_object(pk=pk)
+        following_users = user.followers.all()
+        return following_users
+
+    def get(self, request, pk=None):
+        queryset = self.get_queryset(pk)
+        serializer = UserListSerializer(queryset, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    # def patch(self, request):
+    #     serializer = UserFollowSerializer(request.user, data=request.data, partial=True)
+    #     serializer.is_valid(raise_exception=True)
+    #     serializer.save()
+    #     return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+
+# class UserFollowersAPI(APIView):
+#     authentication_classes = (TokenAuthentication,)
+#     permission_classes = (IsAuthenticatedOrReadOnly,)
 
 
 # class UploadProfileImageView(APIView):
