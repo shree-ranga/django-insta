@@ -7,7 +7,7 @@ from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from rest_framework import status
 from rest_framework.exceptions import ValidationError
 
-from .serializers import UserListSerializer, UserDetailSerializer, UserFollowSerializer
+from .serializers import UserListSerializer, UserDetailSerializer
 
 User = get_user_model()
 
@@ -77,17 +77,6 @@ class UserFollowersAPIView(APIView):
         queryset = self.get_queryset(pk)
         serializer = UserListSerializer(queryset, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
-
-    # def patch(self, request):
-    #     serializer = UserFollowSerializer(request.user, data=request.data, partial=True)
-    #     serializer.is_valid(raise_exception=True)
-    #     serializer.save()
-    #     return Response(serializer.data, status=status.HTTP_201_CREATED)
-
-
-# class UserFollowersAPI(APIView):
-#     authentication_classes = (TokenAuthentication,)
-#     permission_classes = (IsAuthenticatedOrReadOnly,)
 
 
 # class UploadProfileImageView(APIView):

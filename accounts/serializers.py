@@ -26,6 +26,7 @@ class UserListSerializer(serializers.ModelSerializer):
             "bio",
             "total_followers",
             "total_following",
+            "followers",
         )
 
     def get_full_name(self, obj):
@@ -54,6 +55,7 @@ class UserDetailSerializer(serializers.ModelSerializer):
             "following",
             "total_followers",
             "total_following",
+            "followers",
         )
         extra_kwargs = {"following": {"write_only": True}}
 
@@ -70,35 +72,17 @@ class UserDetailSerializer(serializers.ModelSerializer):
     def update(self, instance, validated_data):
         follow_user = validated_data.pop("following")
         for user in follow_user:
-            if instance.id != user.id:
-                instance.following.add(user)
-                instance.save()
+            if user not in instance.following.all():
+                if instance.id != user.id:
+                    instance.following.add(user)
+                    instance.save()
+                else:
+                    raise ValidationError("User object cannot follow itself")
             else:
-                raise ValidationError("User object cannot follow itself")
+                instance.following.remove(user)
+                instance.save()
 
         return instance
-
-
-class UserFollowSerializer(serializers.ModelSerializer):
-    # followers = UserListSerializer(many=True)
-    # following = UserListSerializer(many=True)
-
-    class Meta:
-        model = User
-        fields = ("followers", "following")
-
-    # TODO: - Add Validation and unfollow feature
-    # def update(self, instance, validated_data):
-    #     follow_user = validated_data.pop("following")
-
-    #     for user in follow_user:
-    #         if instance.id != user.id:
-    #             instance.following.add(user)
-    #             instance.save()
-    #         else:
-    #             raise ValidationError("User object cannot follow itself")
-
-    #     return instance
 
 
 class TestImageUploadSerializer(serializers.ModelSerializer):
