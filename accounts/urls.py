@@ -6,15 +6,20 @@ from .views import *
 
 urlpatterns = [
     path("users/", UserListAPIView.as_view(), name="user_list"),
-    path("users/me/", UserDetailAPIView.as_view(), name="user_detail"),
+    path("users/<int:pk>/", UserDetailAPIView.as_view(), name="user_detail"),
     path(
-        "users/<int:pk>/following/",
-        UserFollowingAPIView.as_view(),
-        name="user_following_list",
+        "users/follow-unfollow/",
+        FollowUnfollowAPIView.as_view(),
+        name="user_follow_unfollow",
     ),
     path(
         "users/<int:pk>/followers/",
-        UserFollowersAPIView.as_view(),
-        name="user_followers_list",
+        UserFollowersListAPIView.as_view(),
+        name="user_followers",
+    ),
+    path(
+        "users/<int:pk>/following/",
+        UserFollowingListAPIView.as_view(),
+        name="user_following",
     ),
 ]

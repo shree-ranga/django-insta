@@ -2,12 +2,11 @@ from django.contrib.auth import get_user_model
 
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework.authentication import TokenAuthentication
-from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from rest_framework import status
 from rest_framework.exceptions import ValidationError
 
-from .serializers import UserListSerializer, UserDetailSerializer
+from .serializers import UserListSerializer, UserDetailSerializer, FollowSerializer
+from .models import Follow
 
 User = get_user_model()
 
@@ -20,25 +19,45 @@ class UserListAPIView(APIView):
 
 
 class UserDetailAPIView(APIView):
-    authentication_classes = (TokenAuthentication,)
-    permission_classes = (IsAuthenticatedOrReadOnly,)
+    def get_object(self, pk):
+        try:
+            user = User.objects.get(pk=pk)
+            return user
+        except:
+            return Response(
+                {"error": "User object not found"}, status=status.HTTP_404_NOT_FOUND
+            )
 
-    def get(self, request):
-        serializer = UserDetailSerializer(request.user)
+    def get(self, request, pk=None):
+        user = self.get_object(pk)
+        serializer = UserDetailSerializer(user)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
-    def patch(self, request):
-        print("PATCH", request.data)
-        serializer = UserDetailSerializer(request.user, data=request.data, partial=True)
+
+class FollowUnfollowAPIView(APIView):
+    def post(self, request):
+        serializer = FollowSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
+    def delete(self, request):
+        print(request.data)
+        data = request.data
+        follower_user_id = request.user.id
+        following_user_id = data.get("following_user_id", None)
+        if following_user_id is not None:
+            instance = Follow.objects.get(
+                follower_user_id=follower_user_id, following_user_id=following_user_id
+            )
+            instance.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        return Response(
+            {"error": "Following user Does not exit"}, status=status.HTTP_404_NOT_FOUND
+        )
 
-class UserFollowingAPIView(APIView):
-    authentication_classes = (TokenAuthentication,)
-    permission_classes = (IsAuthenticatedOrReadOnly,)
 
+class UserFollowingListAPIView(APIView):
     def get_object(self, pk):
         try:
             user = User.objects.get(pk=pk)
@@ -57,10 +76,7 @@ class UserFollowingAPIView(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
-class UserFollowersAPIView(APIView):
-    authentication_classes = (TokenAuthentication,)
-    permission_classes = (IsAuthenticatedOrReadOnly,)
-
+class UserFollowersListAPIView(APIView):
     def get_object(self, pk):
         try:
             user = User.objects.get(pk=pk)
@@ -78,15 +94,3 @@ class UserFollowersAPIView(APIView):
         serializer = UserListSerializer(queryset, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
-
-# class UploadProfileImageView(APIView):
-#     # permission_classes = (AllowAny,)
-#     parser_class = (FileUploadParser,)
-
-#     def post(self, request):
-#         print(request.data)
-#         serializer = TestImageUploadSerializer(data=request.data)
-#         if serializer.is_valid():
-#             serializer.save()
-#             return Response(serializer.data, status=status.HTTP_201_CREATED)
-#         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
