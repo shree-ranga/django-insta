@@ -1,8 +1,6 @@
-from django.conf import settings
 from django.contrib.auth import get_user_model
 
 from rest_framework import serializers
-from rest_framework.exceptions import ValidationError
 
 from .models import Follow
 
@@ -15,7 +13,7 @@ class UserListSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ("id", "username", "full_name", "profile_image_url")
-        # read_only_fields = ("id",)
+        read_only_fields = ("id",)
 
     def get_full_name(self, obj):
         return str(obj.first_name + " " + obj.last_name)
@@ -37,6 +35,7 @@ class UserDetailSerializer(serializers.ModelSerializer):
             "total_followers",
             "total_following",
         )
+        read_only_fields = ("id",)
 
     def get_total_followers(self, obj):
         return obj.followers.count()

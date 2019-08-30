@@ -24,9 +24,7 @@ class UserDetailAPIView(APIView):
             user = User.objects.get(pk=pk)
             return user
         except:
-            return Response(
-                {"error": "User object not found"}, status=status.HTTP_404_NOT_FOUND
-            )
+            raise ValidationError("User does not exist")
 
     def get(self, request, pk=None):
         user = self.get_object(pk)
@@ -34,15 +32,31 @@ class UserDetailAPIView(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
+class CurrentUserDetailAPIVIew(UserDetailAPIView):
+    def get_object(self, pk=None):
+        user = self.request.user
+        return user
+
+
 class FollowUnfollowAPIView(APIView):
+
+    # follow
+    # change this to get or create and get rid of check
     def post(self, request):
-        serializer = FollowSerializer(data=request.data)
+        data = request.data
+        follower_user_id = request.user.id
+        following_user_id = data.get("following_user_id")
+        follow_data = {
+            "follower_user": follower_user_id,
+            "following_user": following_user_id,
+        }
+        serializer = FollowSerializer(data=follow_data)
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
+    # unfollow
     def delete(self, request):
-        print(request.data)
         data = request.data
         follower_user_id = request.user.id
         following_user_id = data.get("following_user_id", None)
@@ -55,6 +69,20 @@ class FollowUnfollowAPIView(APIView):
         return Response(
             {"error": "Following user Does not exit"}, status=status.HTTP_404_NOT_FOUND
         )
+
+
+class CheckFollow(APIView):
+    # check if following and return bool response
+    # may be do filtering
+    def post(self, request):
+        data = request.data
+        follower_user_id = request.user.id
+        following_user_id = data.get("following_user_id")
+        if Follow.objects.filter(
+            follower_user_id=follower_user_id, following_user_id=following_user_id
+        ).exists():
+            return Response({"following": True}, status=status.HTTP_200_OK)
+        return Response({"following": False}, status=status.HTTP_200_OK)
 
 
 class UserFollowingListAPIView(APIView):
