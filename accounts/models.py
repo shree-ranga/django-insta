@@ -7,7 +7,7 @@ AbstractUser._meta.get_field("email")._unique = True
 
 
 class User(AbstractUser):
-    profile_image_url = models.ImageField()
+    profile_image_url = models.ImageField(null=True, blank=True)
     followers = models.ManyToManyField(
         "self", symmetrical=False, through="Follow", related_name="following"
     )

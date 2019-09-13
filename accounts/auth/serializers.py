@@ -9,14 +9,6 @@ User = get_user_model()
 
 
 class RegisterSerializer(serializers.ModelSerializer):
-    # username = serializers.CharField()
-    # full_name = serializers.CharField()
-    # email = serializers.EmailField()
-    # password = serializers.CharField()
-    # profile_image_url = serializers.ImageField()
-
-    # def validate(self, data):
-    #     return data
     class Meta:
         model = User
         fields = (
@@ -73,11 +65,6 @@ class LoginSerializer(serializers.Serializer):
             msg = "Please provide username or email and password"
             raise ValidationError(msg)
         return data
-
-    # def get_user_by_email(self):
-    #     if self.email:
-    #         user = User.objects.filter(email=email)
-    #     return user
 
 
 class LogoutSerializer(serializers.ModelSerializer):

@@ -12,7 +12,7 @@ User = get_user_model()
 
 
 class UserListAPIView(APIView):
-    def get(self, request):
+    def get(self, request, *args, **kwargs):
         queryset = User.objects.all()
         serializer = UserListSerializer(queryset, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
@@ -26,7 +26,7 @@ class UserDetailAPIView(APIView):
         except:
             raise ValidationError("User does not exist")
 
-    def get(self, request, pk=None):
+    def get(self, request, pk=None, *args, **kwargs):
         user = self.get_object(pk)
         serializer = UserDetailSerializer(user)
         return Response(serializer.data, status=status.HTTP_200_OK)
@@ -42,7 +42,7 @@ class FollowUnfollowAPIView(APIView):
 
     # follow
     # change this to get or create and get rid of check
-    def post(self, request):
+    def post(self, request, *args, **kwargs):
         data = request.data
         follower_user_id = request.user.id
         following_user_id = data.get("following_user_id")
@@ -56,7 +56,7 @@ class FollowUnfollowAPIView(APIView):
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
     # unfollow
-    def delete(self, request):
+    def delete(self, request, *args, **kwargs):
         data = request.data
         follower_user_id = request.user.id
         following_user_id = data.get("following_user_id", None)
@@ -74,7 +74,7 @@ class FollowUnfollowAPIView(APIView):
 class CheckFollow(APIView):
     # check if following and return bool response
     # may be do filtering
-    def post(self, request):
+    def post(self, request, *args, **kwargs):
         data = request.data
         follower_user_id = request.user.id
         following_user_id = data.get("following_user_id")
@@ -98,7 +98,7 @@ class UserFollowingListAPIView(APIView):
         following_users = user.following.all()
         return following_users
 
-    def get(self, request, pk=None):
+    def get(self, request, pk=None, *args, **kwargs):
         queryset = self.get_queryset(pk)
         serializer = UserListSerializer(queryset, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
@@ -117,7 +117,7 @@ class UserFollowersListAPIView(APIView):
         following_users = user.followers.all()
         return following_users
 
-    def get(self, request, pk=None):
+    def get(self, request, pk=None, *args, **kwargs):
         queryset = self.get_queryset(pk)
         serializer = UserListSerializer(queryset, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
