@@ -1,3 +1,5 @@
+from django.db.models import F
+
 from rest_framework import generics
 from rest_framework import mixins
 from rest_framework.views import APIView
@@ -6,8 +8,8 @@ from rest_framework import status
 from rest_framework.exceptions import ValidationError
 from rest_framework.parsers import MultiPartParser, JSONParser
 
-from .serializers import PostSerializer
-from .models import Post
+from .serializers import PostSerializer, LikeSerializer
+from .models import Post, Like
 
 
 class PostCreateView(generics.GenericAPIView, mixins.CreateModelMixin):
@@ -49,3 +51,36 @@ class UserFeedView(APIView):
         queryset = Post.objects.filter(owner__in=following_list)
         serializer = PostSerializer(queryset, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class LikeCreateView(APIView):
+    def post(self, request):
+        post_id = request.data["post_id"]
+        user_id = request.user.id
+        data = {"post": post_id, "user": user_id}
+        serializer = LikeSerializer(data=data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class UnlikeView(APIView):
+    def delete(self, request):
+        post_id = request.data["post_id"]
+        user_id = request.user.id
+        l_instance = Like.objects.get(post=post_id, user=user_id)
+        p_instance = Post.objects.get(id=post_id)
+        p_instance.likes_count = F("likes_count") - 1
+        p_instance.save()
+        l_instance.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class CheckLikeView(APIView):
+    def post(self, request):
+        post_id = request.data["post_id"]
+        user_id = request.user.id
+        if Like.objects.filter(post=post_id, user=user_id).exists():
+            return Response({"liked": True}, status=status.HTTP_200_OK)
+        return Response({"liked": False}, status=status.HTTP_200_OK)
