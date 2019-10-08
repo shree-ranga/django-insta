@@ -3,6 +3,7 @@ from django.contrib.auth.models import AbstractUser
 from django.conf import settings
 from django.utils import timezone
 
+# validate this in the serializer
 AbstractUser._meta.get_field("email")._unique = True
 
 
