@@ -7,6 +7,7 @@ from rest_framework.exceptions import ValidationError
 
 from .serializers import UserListSerializer, UserDetailSerializer, FollowSerializer
 from .models import Follow
+from notifications.models import Notification
 
 User = get_user_model()
 
@@ -53,6 +54,12 @@ class FollowUnfollowAPIView(APIView):
         serializer = FollowSerializer(data=follow_data)
         serializer.is_valid(raise_exception=True)
         serializer.save()
+        notification = Notification.objects.create(
+            sender=serializer.instance.follower_user,
+            receiver=serializer.instance.following_user,
+            content_object=serializer.instance,
+            notification_type="follow",
+        )
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
     # unfollow

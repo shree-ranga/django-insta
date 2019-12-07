@@ -34,6 +34,8 @@ INSTALLED_APPS = [
     "accounts",
     "posts",
     "comments",
+    "dummy",
+    "notifications",
     # third party
     "rest_framework",
     "rest_framework.authtoken",

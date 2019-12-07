@@ -2,6 +2,9 @@ from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.conf import settings
 from django.utils import timezone
+from django.contrib.contenttypes.fields import GenericRelation
+
+from notifications.models import Notification
 
 # validate this in the serializer
 AbstractUser._meta.get_field("email")._unique = True
@@ -29,6 +32,7 @@ class Follow(models.Model):
         User, on_delete=models.CASCADE, related_name="following_user"
     )
     followed_at = models.DateTimeField(default=timezone.now)
+    notifications = GenericRelation(Notification)
 
     # needed?
     class Meta:
