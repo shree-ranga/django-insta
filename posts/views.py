@@ -1,4 +1,6 @@
 from django.db.models import F
+from django.utils.decorators import method_decorator
+from django.views.decorators.cache import cache_page
 
 from rest_framework import generics
 from rest_framework import mixins
@@ -40,6 +42,7 @@ class PostListView(APIView):
 
 
 class UserFeedView(APIView):
+    @method_decorator(cache_page(60 * 5))
     def get(self, request):
         following_list = []
         user_id = request.user.id
