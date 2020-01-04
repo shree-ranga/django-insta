@@ -42,6 +42,7 @@ class PostListView(APIView):
 
 
 class UserFeedView(APIView):
+    # TODO: - Update cache after post
     @method_decorator(cache_page(60 * 5))
     def get(self, request):
         following_list = []

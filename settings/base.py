@@ -73,7 +73,6 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "playground.wsgi.application"
 
-
 # Database
 # https://docs.djangoproject.com/en/2.2/ref/settings/#databases
 
@@ -139,3 +138,9 @@ REST_FRAMEWORK = {
         "rest_framework.permissions.IsAuthenticatedOrReadOnly"
     ],
 }
+
+# Celery
+CELERY_BROKER_URL = "amqp://localhost:5672"
+CELERY_ACCEPT_CONTENT = ["application/json"]
+CELERY_RESULT_SERIALIZER = "json"
+CELERY_TASK_SERIALIZER = "json"
