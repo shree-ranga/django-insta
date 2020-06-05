@@ -14,7 +14,7 @@ celery==4.4.0
 Click==7.0
 colorama==0.4.1
 decorator==4.4.1
-Django==3.0
+Django==3.0.7
 django-celery==3.3.1
 django-debug-toolbar==2.1
 django-redis==4.11.0
